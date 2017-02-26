@@ -43,11 +43,13 @@ And finally, my current pipeline is in no sense Bayesian; knowing where the lane
 
 Potential improvements depend on how much computational power is available.
 
-At a bare minimum I should put add a low pass filter after the average line computation to eliminate the jitter from the noise.
+At a bare minimum I should put add a low pass filter after the average line computation to eliminate the noise-jitter.
 
 A good next step beyond that would be to choose the Canny and Hough parameters dynamically based on location in the image.  The idea is that towards the center of the image things will be further away and thus smaller and noisier, and thus good parameters to find markings there will be different from good parameters to find markings nearby (at the bottom and towards the sides of the image).  To do that I'd have to re-implement the canny and hough algorithms to accept functions in place of constant parameters, and then I'd need a hefty dataset to discover what those functions should be, but those are both doable things.
 
-And finally, if I could have however much processing power I want I'd throw away Hough lines entirely and replace them with Krigged lines (trained directly on the Canny edges in the ROI).  That way I could model arbitrarily curved lanes and use the vehicle speed as a prior on the permitted curviness.  The trouble here is that Krigging involves matrix inversion (which is O(N^3)).
+Beyond that, assuming I had access to enough data and precomputation time, I'd add a color correction step.  It would work by first classifying the image by lighting condition (eg, clear sun, cloudy, sodium-light lit tunnel, golden hour, etc) and then choose filter parameters that work well under those conditions.  This requires a lot of data, because it adds several parameters (at least brightness, contrast, and color temperature) to each of the parameter-functions being sent to canny and hough, which adds orders of magnitude to the complexity of the problem of figuring out what those parameter-functions should be.
+
+And finally, if I could have however much processing power I want I'd throw away Hough lines entirely and replace them with Krigged lines (trained directly on the Canny edges in the ROI).  That way I could model arbitrarily curved lanes and use the vehicle speed as a prior on the permitted curviness.  The trouble here is that Krigging involves matrix inversion (which is O(N^3)), so I'd need plenty of CPU.
 
 
 
